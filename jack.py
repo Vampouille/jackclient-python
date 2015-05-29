@@ -888,7 +888,11 @@ class Client(object):
         """
         @self._callback("JackProcessCallback", error=STOP_CALLING)
         def callback_wrapper(frames, _):
-            return callback(frames)
+            try:
+                callback(frames)
+            except CallbackExit:
+                return STOP_CALLING
+            return CALL_AGAIN
 
         _check(_lib.jack_set_process_callback(
             self._ptr, callback_wrapper, _ffi.NULL),
@@ -2356,6 +2360,10 @@ class JackError(Exception):
 
     """Exception for all kinds of JACK-related errors."""
 
+    pass
+
+
+class CallbackExit(Exception):
     pass
 
 
